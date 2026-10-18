@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Écran Connexion : décrit ce que l'on VOIT (la partie "dessin" de la page). -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PriceCheck.Pages.ConnexionPage"
+             Title="Connexion"
+             BackgroundColor="{StaticResource PcSurface}"
+             Shell.NavBarIsVisible="False">
+
+    <!-- ScrollView : permet de faire défiler l'écran si le clavier cache une partie. -->
+    <ScrollView>
+        <!-- VerticalStackLayout : empile les éléments de haut en bas.
+             Padding = marges intérieures (gauche, haut, droite, bas) : 24 px sur les côtés, comme la maquette. -->
+        <VerticalStackLayout Padding="24,72,24,24">
+
+            <!-- Logo + nom de l'application, côte à côte -->
+            <HorizontalStackLayout Spacing="12">
+                <!-- Carré bleu 48x48, rayon 12 (provisoire : nous mettrons l'image du logo plus tard) -->
+                <Border BackgroundColor="{StaticResource PcPrincipale}"
+                        StrokeThickness="0"
+                        WidthRequest="48" HeightRequest="48">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                    <Label Text="P" TextColor="White" FontSize="24" FontAttributes="Bold"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Label Text="PriceCheck" Style="{StaticResource TitreSection}" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <!-- Titre et sous-titre. Margin = espace autour (gauche, haut, droite, bas). -->
+            <Label Text="Connexion" Style="{StaticResource TitrePrincipal}" Margin="0,32,0,0" />
+            <Label Text="Comparez les prix avant d'acheter" Style="{StaticResource TexteSecondaire}" Margin="0,8,0,0" />
+
+            <!-- Champ adresse e-mail -->
+            <Label Text="Adresse e-mail" FontSize="14" FontAttributes="Bold"
+                   TextColor="{StaticResource PcTexte}" Margin="0,32,0,8" />
+            <Border x:Name="CadreEmail" Style="{StaticResource CadreChamp}">
+                <Entry x:Name="ChampEmail" Placeholder="nom@exemple.com" Keyboard="Email"
+                       Style="{StaticResource ChampSaisie}" />
+            </Border>
+            <!-- Message d'erreur : caché tant qu'il n'y a pas d'erreur (IsVisible="False") -->
+            <Label x:Name="ErreurEmail" Style="{StaticResource MessageErreur}"
+                   IsVisible="False" Margin="0,4,0,0" />
+
+            <!-- Champ mot de passe -->
+            <Label Text="Mot de passe" FontSize="14" FontAttributes="Bold"
+                   TextColor="{StaticResource PcTexte}" Margin="0,16,0,8" />
+            <Border x:Name="CadreMotDePasse" Style="{StaticResource CadreChamp}">
+                <!-- Grid : deux colonnes. La première (*) prend la place disponible, la seconde (Auto) la taille du texte. -->
+                <Grid ColumnDefinitions="*,Auto">
+                    <Entry x:Name="ChampMotDePasse" Grid.Column="0" Placeholder="8 caractères minimum"
+                           IsPassword="True" Style="{StaticResource ChampSaisie}" />
+                    <Label x:Name="BoutonAfficher" Grid.Column="1" Text="Afficher"
+                           Style="{StaticResource LienTexte}" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <!-- Tapped = "quand on touche" : appelle la méthode du fichier .cs portant ce nom -->
+                            <TapGestureRecognizer Tapped="OnAfficherMotDePasseTapped" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+            </Border>
+            <Label x:Name="ErreurMotDePasse" Style="{StaticResource MessageErreur}"
+                   IsVisible="False" Margin="0,4,0,0" />
+
+            <!-- Lien "Mot de passe oublié ?" aligné à droite -->
+            <Label Text="Mot de passe oublié ?" Style="{StaticResource LienTexte}"
+                   HorizontalOptions="End" Margin="0,12,0,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnMotDePasseOublieTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <!-- Boutons : principal (bleu plein) puis secondaire (contour). Clicked = "quand on appuie". -->
+            <Button Text="Se connecter" Style="{StaticResource BoutonPrincipal}"
+                    Margin="0,32,0,0" Clicked="OnSeConnecterClicked" />
+            <Button Text="Créer un compte" Style="{StaticResource BoutonSecondaire}"
+                    Margin="0,16,0,0" Clicked="OnCreerUnCompteClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
