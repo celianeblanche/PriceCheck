@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Le Shell gère la navigation de toute l'application. -->
+<Shell
+    x:Class="PriceCheck.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:PriceCheck.Pages"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarBackgroundColor="#FFFFFF"
+    Shell.TabBarForegroundColor="#1D4ED8"
+    Shell.TabBarTitleColor="#1D4ED8"
+    Shell.TabBarUnselectedColor="#475569"
+    Title="PriceCheck">
+
+    <!-- Pages sans barre du bas -->
+    <ShellContent
+        Title="Connexion"
+        ContentTemplate="{DataTemplate pages:ConnexionPage}"
+        Route="ConnexionPage" />
+
+    <ShellContent
+        Title="Inscription"
+        ContentTemplate="{DataTemplate pages:InscriptionPage}"
+        Route="InscriptionPage" />
+
+    <!-- TabBar = la barre du bas. Chaque ShellContent à l'intérieur devient un onglet.
+         Couleurs (déclarées plus haut) : onglet actif = bleu principal, onglets inactifs = gris du texte secondaire. -->
+    <TabBar Route="Principal">
+        <ShellContent Title="Accueil"
+                      ContentTemplate="{DataTemplate pages:AccueilPage}"
+                      Route="AccueilPage" />
+        <ShellContent Title="Scanner"
+                      ContentTemplate="{DataTemplate pages:ScannerPage}"
+                      Route="ScannerPage" />
+        <ShellContent Title="Ma liste"
+                      ContentTemplate="{DataTemplate pages:ListePage}"
+                      Route="ListePage" />
+        <ShellContent Title="Historique"
+                      ContentTemplate="{DataTemplate pages:HistoriquePage}"
+                      Route="HistoriquePage" />
+    </TabBar>
+
+</Shell>
