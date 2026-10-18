@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Écran Résultat : prix d'un produit dans chaque enseigne. -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:PriceCheck.Models"
+             x:Class="PriceCheck.Pages.ResultatPage"
+             Title="Résultat"
+             BackgroundColor="#F8FAFC"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,56,24,24">
+
+            <!-- Lien Retour -->
+            <Label Text="Retour" Style="{StaticResource LienTexte}" HorizontalOptions="Start">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRetourTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <!-- Nom et code-barres (remplis par le code .cs) -->
+            <Label x:Name="NomProduit" Style="{StaticResource TitrePrincipal}" Margin="0,16,0,0" />
+            <Label x:Name="CodeProduit" Style="{StaticResource TexteSecondaire}" Margin="0,4,0,0" />
+
+            <!-- Une carte par enseigne (BindableLayout, comme sur l'Accueil) -->
+            <VerticalStackLayout x:Name="ListeLignes" Spacing="12" Margin="0,24,0,0">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:LignePrix">
+                        <!-- Fond et bordure viennent du modèle : vert pour le meilleur prix, sinon blanc/gris -->
+                        <Border BackgroundColor="{Binding CouleurFond}"
+                                Stroke="{Binding CouleurBordure}"
+                                StrokeThickness="1" Padding="16">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Enseigne}"
+                                       Style="{StaticResource SousTitre}" VerticalOptions="Center" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding PrixTexte}"
+                                       Style="{StaticResource PrixListe}" TextColor="{Binding CouleurPrix}" />
+
+                                <!-- Badge "Meilleur prix" : visible seulement pour la meilleure ligne -->
+                                <Border Grid.Row="1" Grid.Column="0" IsVisible="{Binding EstMeilleur}"
+                                        BackgroundColor="#15803D" StrokeThickness="0"
+                                        Padding="8,2" HorizontalOptions="Start">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8" />
+                                    </Border.StrokeShape>
+                                    <Label Text="Meilleur prix" TextColor="White" FontSize="12" FontAttributes="Bold" />
+                                </Border>
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding EcartTexte}"
+                                       Style="{StaticResource PetitTexte}" HorizontalOptions="End" />
+
+                                <!-- Alerte "relevé ancien" : visible seulement s'il y en a une -->
+                                <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                        IsVisible="{Binding AAlerte}"
+                                        BackgroundColor="#FEF3C7" StrokeThickness="0"
+                                        Padding="8,4" HorizontalOptions="Start">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8" />
+                                    </Border.StrokeShape>
+                                    <Label Text="{Binding Alerte}" TextColor="#B45309" FontSize="12" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <!-- Actions : un seul bouton principal -->
+            <Button Text="Ajouter à ma liste" Style="{StaticResource BoutonPrincipal}"
+                    Margin="0,24,0,0" Clicked="OnAjouterListeClicked" />
+            <Button Text="Ajouter un relevé" Style="{StaticResource BoutonSecondaire}"
+                    Margin="0,16,0,0" Clicked="OnAjouterReleveClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
