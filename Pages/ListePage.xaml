@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Écran Ma liste : deux affichages possibles (liste vide / liste remplie), choisis par le code .cs. -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:PriceCheck.Models"
+             x:Class="PriceCheck.Pages.ListePage"
+             Title="Ma liste"
+             BackgroundColor="#F8FAFC"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,56,24,24">
+
+            <Label Text="Ma liste" Style="{StaticResource TitrePrincipal}" />
+
+            <!-- Affichage 1 : liste vide (deux lignes de texte + un bouton, sans illustration) -->
+            <VerticalStackLayout x:Name="EtatVide" IsVisible="False" Margin="0,32,0,0">
+                <Label Text="Votre liste est vide" Style="{StaticResource TitreSection}" />
+                <Label Text="Scannez un produit pour l'ajouter" Style="{StaticResource TexteSecondaire}" Margin="0,8,0,0" />
+                <Button Text="Scanner un produit" Style="{StaticResource BoutonPrincipal}"
+                        Margin="0,32,0,0" Clicked="OnScannerClicked" />
+            </VerticalStackLayout>
+
+            <!-- Affichage 2 : liste remplie -->
+            <VerticalStackLayout x:Name="ContenuListe" IsVisible="False" Margin="0,24,0,0">
+
+                <!-- Une carte par produit (BindableLayout) -->
+                <VerticalStackLayout x:Name="ListeArticles" Spacing="12">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:ArticleListe">
+                            <Border Style="{StaticResource Carte}">
+                                <!-- Toucher la carte ouvre le Résultat du produit -->
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnArticleTapped" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding Nom}"
+                                           Style="{StaticResource SousTitre}" />
+                                    <Label Grid.Row="1" Grid.Column="0" Text="{Binding Enseigne}"
+                                           Style="{StaticResource TexteSecondaire}" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding PrixTexte}"
+                                           Style="{StaticResource PrixListe}" HorizontalOptions="End" />
+                                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding QuantiteTexte}"
+                                           Style="{StaticResource PetitTexte}" HorizontalOptions="End" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Total estimé -->
+                <Grid ColumnDefinitions="*,Auto" Margin="0,24,0,0">
+                    <Label Grid.Column="0" Text="Total estimé" Style="{StaticResource SousTitre}"
+                           VerticalOptions="Center" />
+                    <Label Grid.Column="1" x:Name="TotalListe" Style="{StaticResource PrixListe}" />
+                </Grid>
+
+                <Button Text="Ajouter un produit" Style="{StaticResource BoutonSecondaire}"
+                        Margin="0,24,0,0" Clicked="OnAjouterProduitClicked" />
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

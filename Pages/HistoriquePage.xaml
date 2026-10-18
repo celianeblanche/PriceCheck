@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Écran Historique : deux affichages (chargement / contenu), choisis par le code .cs. -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:PriceCheck.Models"
+             x:Class="PriceCheck.Pages.HistoriquePage"
+             Title="Historique"
+             BackgroundColor="#F8FAFC"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <!-- Style local : bloc gris statique (sans animation) pour l'état de chargement -->
+        <Style x:Key="BlocChargement" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#E2E8F0" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape">
+                <Setter.Value>
+                    <RoundRectangle CornerRadius="12" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,56,24,24">
+
+            <Label Text="Historique" Style="{StaticResource TitrePrincipal}" />
+            <Label x:Name="NomProduit" Style="{StaticResource TexteSecondaire}" Margin="0,8,0,0" />
+
+            <!-- Affichage 1 : chargement (blocs gris) -->
+            <VerticalStackLayout x:Name="Chargement" Spacing="12" Margin="0,24,0,0">
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Border Grid.Column="0" Style="{StaticResource BlocChargement}" HeightRequest="88" />
+                    <Border Grid.Column="1" Style="{StaticResource BlocChargement}" HeightRequest="88" />
+                    <Border Grid.Column="2" Style="{StaticResource BlocChargement}" HeightRequest="88" />
+                </Grid>
+                <Border Style="{StaticResource BlocChargement}" HeightRequest="24" WidthRequest="160"
+                        HorizontalOptions="Start" Margin="0,12,0,0" />
+                <Border Style="{StaticResource BlocChargement}" HeightRequest="64" />
+                <Border Style="{StaticResource BlocChargement}" HeightRequest="64" />
+                <Border Style="{StaticResource BlocChargement}" HeightRequest="64" />
+            </VerticalStackLayout>
+
+            <!-- Affichage 2 : contenu -->
+            <VerticalStackLayout x:Name="Contenu" IsVisible="False" Margin="0,24,0,0">
+
+                <!-- Trois cartes : Min, Moyen, Max (3 colonnes de même largeur) -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Border Grid.Column="0" Style="{StaticResource Carte}" Padding="12">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Min" Style="{StaticResource PetitTexte}" />
+                            <Label x:Name="StatMin" Style="{StaticResource TitreSection}" />
+                            <Label Text="FCFA" Style="{StaticResource PetitTexte}" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource Carte}" Padding="12">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Moyen" Style="{StaticResource PetitTexte}" />
+                            <Label x:Name="StatMoyen" Style="{StaticResource TitreSection}" />
+                            <Label Text="FCFA" Style="{StaticResource PetitTexte}" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource Carte}" Padding="12">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Max" Style="{StaticResource PetitTexte}" />
+                            <Label x:Name="StatMax" Style="{StaticResource TitreSection}" />
+                            <Label Text="FCFA" Style="{StaticResource PetitTexte}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <Label Text="Relevés récents" Style="{StaticResource TitreSection}" Margin="0,32,0,0" />
+
+                <!-- Une carte par relevé (BindableLayout) ; toucher une carte ouvre le Résultat -->
+                <VerticalStackLayout x:Name="ListeReleves" Spacing="12" Margin="0,16,0,0">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:LigneReleve">
+                            <Border Style="{StaticResource Carte}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnReleveTapped" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding DateTexte}"
+                                           Style="{StaticResource TexteCourant}" VerticalOptions="Center" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding PrixTexte}"
+                                           Style="{StaticResource PrixListe}" HorizontalOptions="End" />
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="{Binding VariationTexte}" TextColor="{Binding CouleurVariation}"
+                                           Style="{StaticResource PetitTexte}" HorizontalOptions="End" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
