@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using PriceCheck.Data; // pour retrouver la classe BaseDeDonnees
+using PriceCheck.Data; // BaseDeDonnees, IProduitRepository, SqliteProduitRepository
 
 namespace PriceCheck;
 
@@ -19,9 +19,11 @@ public static class MauiProgram
                 fonts.AddFont("Inter-Bold.ttf", "InterBold");         // titres, prix, liens
             });
 
-        // NOUVEAU : enregistre la base de données comme service unique (singleton) :
-        // tous les écrans partageront la même instance et la même connexion.
+        // La base de données : une seule instance partagée par toute l'appli (singleton).
         builder.Services.AddSingleton<BaseDeDonnees>();
+
+        // NOUVEAU : quand une page demande IProduitRepository, on lui donne la version SQLite.
+        builder.Services.AddSingleton<IProduitRepository, SqliteProduitRepository>();
 
 #if DEBUG
         builder.Logging.AddDebug();
