@@ -5,10 +5,11 @@ namespace PriceCheck.Pages;
 
 public partial class HistoriquePage : ContentPage
 {
-    // Produit dont on affiche l'historique : le lait, comme sur la maquette.
-    private const string CodeProduit = "6001234567890";
-
     private readonly IProduitRepository _depot = ServiceHelper.Obtenir<IProduitRepository>();
+
+    // Produit dont on affiche l'historique : le dernier consulté (ou le lait par défaut).
+    // C'est une propriété : sa valeur est relue à chaque fois qu'on l'utilise.
+    private static string CodeProduit => DernierProduit.Code;
 
     public HistoriquePage()
     {

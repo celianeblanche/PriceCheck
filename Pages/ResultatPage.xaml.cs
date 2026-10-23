@@ -8,7 +8,7 @@ public partial class ResultatPage : ContentPage
 {
     private readonly IProduitRepository _depot = ServiceHelper.Obtenir<IProduitRepository>();
 
-    // NOUVEAU : accès à la liste d'achats enregistrée dans la base
+    // Accès à la liste d'achats enregistrée dans la base
     private readonly IListeRepository _liste = ServiceHelper.Obtenir<IListeRepository>();
 
     private string _code = "";
@@ -52,6 +52,9 @@ public partial class ResultatPage : ContentPage
             BindableLayout.SetItemsSource(ListeLignes, null);
             return;
         }
+
+        // NOUVEAU : on retient ce produit comme "dernier consulté" (l'onglet Historique l'affichera)
+        DernierProduit.Enregistrer(produit.Code);
 
         NomProduit.Text = produit.Nom;
         CodeProduit.Text = $"Code-barres {produit.CodeAffiche}";
