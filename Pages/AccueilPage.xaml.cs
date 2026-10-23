@@ -1,6 +1,6 @@
 using Microsoft.Maui.Graphics; // pour le type Color
 using PriceCheck.Data;         // IProduitRepository
-using PriceCheck.Services;     // ServiceHelper
+using PriceCheck.Services;     // ServiceHelper, SessionUtilisateur
 
 namespace PriceCheck.Pages;
 
@@ -56,6 +56,13 @@ public partial class AccueilPage : ContentPage
 
         // Ouvre Résultat en lui passant le code dans l'adresse ("?code=...")
         await Shell.Current.GoToAsync($"ResultatPage?code={code}");
+    }
+
+    // NOUVEAU : "Se déconnecter" : on efface la session, puis on retourne sur l'écran Connexion
+    private async void OnSeDeconnecterTapped(object? sender, TappedEventArgs e)
+    {
+        SessionUtilisateur.Fermer(); // la personne n'est plus connectée, même après fermeture de l'appli
+        await Shell.Current.GoToAsync("//ConnexionPage");
     }
 
     // Montre ou cache l'erreur du champ code (texte = null : pas d'erreur)

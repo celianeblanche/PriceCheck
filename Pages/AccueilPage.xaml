@@ -55,6 +55,15 @@
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
 
+            <!-- NOUVEAU : lien de déconnexion, discret, en bas de l'écran.
+                 Un Label rendu cliquable avec un TapGestureRecognizer (comme "Afficher" sur l'écran Connexion). -->
+            <Label Text="Se déconnecter" FontSize="14" FontFamily="InterBold"
+                   TextColor="#1D4ED8" HorizontalOptions="Center" Margin="0,32,0,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnSeDeconnecterTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
