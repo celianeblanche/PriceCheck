@@ -3,4 +3,9 @@
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<!-- NOUVEAU : autorisation d'utiliser la caméra (Android la redemandera à l'utilisateur) -->
+	<uses-permission android:name="android.permission.CAMERA" />
+	<!-- NOUVEAU : la caméra est utile mais pas obligatoire, l'appli reste installable sans (saisie manuelle possible) -->
+	<uses-feature android:name="android.hardware.camera" android:required="false" />
+	<uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 </manifest>

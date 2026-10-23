@@ -20,9 +20,16 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnCadreCameraTapped" />
             </Border.GestureRecognizers>
-            <Label Text="Appuyez pour activer la caméra" TextColor="White" FontSize="16"
-                   HorizontalTextAlignment="Center" HorizontalOptions="Center"
-                   VerticalOptions="Center" Margin="24" />
+
+            <!-- MODIFIÉ : ZoneCamera est un conteneur dans lequel le code (.cs) ajoute la vue caméra
+                 à chaque activation, et la retire quand on quitte l'écran.
+                 Les éléments d'un Grid sans lignes sont empilés : le texte passe PAR-DESSUS la caméra. -->
+            <Grid x:Name="ZoneCamera">
+                <!-- Texte affiché tant que la caméra est éteinte -->
+                <Label x:Name="MessageCamera" Text="Appuyez pour activer la caméra" TextColor="White" FontSize="16"
+                       HorizontalTextAlignment="Center" HorizontalOptions="Center"
+                       VerticalOptions="Center" Margin="24" />
+            </Grid>
         </Border>
 
         <!-- Panneau blanc du bas : saisie manuelle. Coins arrondis seulement en haut ("12,12,0,0"). -->

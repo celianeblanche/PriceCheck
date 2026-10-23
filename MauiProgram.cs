@@ -1,5 +1,6 @@
+using BarcodeScanning;           // NOUVEAU : fournit UseBarcodeScanning()
 using Microsoft.Extensions.Logging;
-using PriceCheck.Data; // BaseDeDonnees et les repositories
+using PriceCheck.Data;           // BaseDeDonnees et les repositories
 
 namespace PriceCheck;
 
@@ -11,6 +12,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseBarcodeScanning() // NOUVEAU : active la lecture de code-barres par la caméra
             .ConfigureFonts(fonts =>
             {
                 // AddFont("fichier", "alias") : l'alias est le nom utilisé dans FontFamily.
@@ -22,13 +24,9 @@ public static class MauiProgram
         // La base de données : une seule instance partagée par toute l'appli (singleton).
         builder.Services.AddSingleton<BaseDeDonnees>();
 
-        // Quand une page demande IProduitRepository, on lui donne la version SQLite.
+        // Quand une page demande un repository, on lui donne la version SQLite.
         builder.Services.AddSingleton<IProduitRepository, SqliteProduitRepository>();
-
-        // Même principe pour les comptes utilisateurs.
         builder.Services.AddSingleton<IUtilisateurRepository, SqliteUtilisateurRepository>();
-
-        // NOUVEAU : même principe pour la liste d'achats.
         builder.Services.AddSingleton<IListeRepository, SqliteListeRepository>();
 
 #if DEBUG
