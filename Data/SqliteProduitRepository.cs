@@ -1,5 +1,6 @@
 using PriceCheck.Models;
 using PriceCheck.Services;
+using SQLite;
 
 namespace PriceCheck.Data;
 
@@ -81,6 +82,34 @@ public class SqliteProduitRepository : IProduitRepository
             Prix = prix,
             DateReleve = DateTime.Now
         });
+    }
+
+    // NOUVEAU : crée un produit encore inconnu, puis enregistre son premier relevé de prix.
+    public async Task<bool> CreerProduitAsync(string code, string nom, string enseigne, int prix)
+    {
+        var db = await _base.ObtenirConnexionAsync();
+
+        // Le produit existe déjà ? Alors on ne le recrée pas.
+        var existant = await db.Table<Produit>().Where(p => p.CodeBarres == code).FirstOrDefaultAsync();
+        if (existant != null)
+        {
+            return false;
+        }
+
+        try
+        {
+            await db.InsertAsync(new Produit { CodeBarres = code, Nom = nom.Trim() });
+        }
+        catch (SQLiteException)
+        {
+            // Filet de sécurité : la base a refusé (code-barres "Unique" déjà pris entre-temps)
+            return false;
+        }
+
+        // Le produit existe maintenant : on réutilise la méthode des relevés
+        // (elle crée aussi l'enseigne si elle est nouvelle).
+        await EnregistrerReleveAsync(code, enseigne, prix);
+        return true;
     }
 
     public async Task<HistoriqueProduit?> ObtenirHistoriqueAsync(string code)

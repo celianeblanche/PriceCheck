@@ -1,3 +1,4 @@
+using System.Globalization;     // NumberStyles, CultureInfo (lecture du prix)
 using BarcodeScanning;          // CameraView, BarcodeFormats, Methods, OnDetectionFinishedEventArg
 using Microsoft.Maui.Graphics;
 using PriceCheck.Data;
@@ -66,7 +67,7 @@ public partial class ScannerPage : ContentPage
                 return;
             }
 
-            // On crée une vue caméra NEUVE à chaque activation (c'est ce qui règle le problème du 2e scan)
+            // On crée une vue caméra NEUVE à chaque activation
             var camera = new CameraView
             {
                 CameraEnabled = true,                       // allume la caméra
@@ -132,17 +133,23 @@ public partial class ScannerPage : ContentPage
                 _camera.PauseScanning = true; // on arrête de chercher pendant qu'on traite ce code
             }
 
-            var produit = await _depot.TrouverProduitAsync(code);
-            if (produit != null)
+            bool disponible = await _depot.TrouverProduitAsync(code) != null;
+
+            // NOUVEAU : produit inconnu -> on propose de l'ajouter
+            if (!disponible)
             {
-                // Produit connu : on ouvre sa comparaison (la caméra est détruite en quittant l'écran)
+                disponible = await ProposerAjoutAsync(code);
+            }
+
+            if (disponible)
+            {
+                // Produit connu (ou tout juste ajouté) : on ouvre sa comparaison
+                // (la caméra est détruite en quittant l'écran)
                 await Shell.Current.GoToAsync($"ResultatPage?code={code}");
                 return;
             }
 
-            // Produit inconnu : on le dit, puis on relance la recherche de codes
-            await DisplayAlertAsync("Produit inconnu",
-                $"Le code-barres {code} n'est pas encore dans la base de données.", "OK");
+            // Ajout annulé : on relance la recherche de codes
             _lectureEnCours = false;
             if (_camera != null)
             {
@@ -151,7 +158,7 @@ public partial class ScannerPage : ContentPage
         });
     }
 
-    // "Comparer" : même contrôle que sur l'Accueil (13 chiffres, puis produit connu)
+    // "Comparer" : même contrôle que sur l'Accueil (13 chiffres), puis produit connu ou ajouté
     private async void OnComparerClicked(object? sender, EventArgs e)
     {
         string code = ChampCode.Text?.Trim() ?? "";
@@ -162,15 +169,76 @@ public partial class ScannerPage : ContentPage
             return;
         }
 
-        // Le code doit exister dans la base de données
-        if (await _depot.TrouverProduitAsync(code) == null)
+        AfficherErreurCode(null);
+
+        // NOUVEAU : code inconnu -> on propose de l'ajouter au lieu d'afficher une erreur
+        bool disponible = await _depot.TrouverProduitAsync(code) != null;
+        if (!disponible)
         {
-            AfficherErreurCode("Code inconnu. Essayez 6001234567890");
-            return;
+            disponible = await ProposerAjoutAsync(code);
         }
 
-        AfficherErreurCode(null);
-        await Shell.Current.GoToAsync($"ResultatPage?code={code}");
+        if (disponible)
+        {
+            await Shell.Current.GoToAsync($"ResultatPage?code={code}");
+        }
+    }
+
+    // NOUVEAU : propose d'ajouter un produit inconnu (nom, enseigne, prix), puis le crée.
+    // Renvoie true si le produit a été créé, false si la personne annule ou se trompe.
+    private async Task<bool> ProposerAjoutAsync(string code)
+    {
+        bool veutAjouter = await DisplayAlertAsync("Produit inconnu",
+            $"Le code-barres {code} n'est pas encore dans la base. Voulez-vous l'ajouter ?",
+            "Ajouter", "Annuler");
+        if (!veutAjouter)
+        {
+            return false;
+        }
+
+        // DisplayPromptAsync : petite fenêtre avec un champ de saisie. Renvoie null si on annule.
+        string? nom = await DisplayPromptAsync("Nouveau produit", "Nom du produit (ex. Lait entier 1 L)",
+            "Suivant", "Annuler", maxLength: 60);
+        if (string.IsNullOrWhiteSpace(nom))
+        {
+            return false;
+        }
+
+        string? enseigne = await DisplayPromptAsync("Nouveau produit", "Enseigne où vous l'avez vu (ex. Super Plus)",
+            "Suivant", "Annuler", maxLength: 40);
+        if (string.IsNullOrWhiteSpace(enseigne))
+        {
+            return false;
+        }
+
+        string? prixTexte = await DisplayPromptAsync("Nouveau produit", "Prix en FCFA (chiffres seulement)",
+            "Ajouter", "Annuler", keyboard: Keyboard.Numeric, maxLength: 9);
+        if (prixTexte == null)
+        {
+            return false; // annulé
+        }
+
+        if (!TryLirePrix(prixTexte, out int prix))
+        {
+            await DisplayAlertAsync("Prix invalide", "Saisissez un prix en chiffres, par exemple 1250.", "OK");
+            return false;
+        }
+
+        // Création RÉELLE dans la base : le produit et son premier relevé de prix
+        bool cree = await _depot.CreerProduitAsync(code, nom.Trim(), enseigne.Trim(), prix);
+        if (!cree)
+        {
+            await DisplayAlertAsync("Ajout impossible", "Ce produit existe déjà.", "OK");
+        }
+        return cree;
+    }
+
+    // Convertit le texte saisi en nombre. Accepte "1250" et "1 250".
+    // Renvoie true si c'est un entier strictement positif ; le résultat est placé dans "prix".
+    private static bool TryLirePrix(string? texte, out int prix)
+    {
+        string nettoye = (texte ?? "").Replace(" ", "").Replace("\u00A0", "").Replace("\u202F", "");
+        return int.TryParse(nettoye, NumberStyles.None, CultureInfo.InvariantCulture, out prix) && prix > 0;
     }
 
     // Montre ou cache l'erreur du champ (texte = null : pas d'erreur)
