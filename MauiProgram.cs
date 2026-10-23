@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using PriceCheck.Data; // pour retrouver la classe BaseDeDonnees
 
 namespace PriceCheck;
 
@@ -17,6 +18,10 @@ public static class MauiProgram
                 fonts.AddFont("Inter-SemiBold.ttf", "InterSemiBold"); // boutons du modèle de départ
                 fonts.AddFont("Inter-Bold.ttf", "InterBold");         // titres, prix, liens
             });
+
+        // NOUVEAU : enregistre la base de données comme service unique (singleton) :
+        // tous les écrans partageront la même instance et la même connexion.
+        builder.Services.AddSingleton<BaseDeDonnees>();
 
 #if DEBUG
         builder.Logging.AddDebug();
