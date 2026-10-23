@@ -1,4 +1,6 @@
 using Microsoft.Maui.Graphics; // pour le type Color
+using PriceCheck.Data;         // IUtilisateurRepository
+using PriceCheck.Services;     // ServiceHelper, SessionUtilisateur
 
 namespace PriceCheck.Pages;
 
@@ -7,6 +9,9 @@ public partial class ConnexionPage : ContentPage
     // Couleurs de la charte (mêmes codes HEX que dans PriceCheckTheme.xaml)
     private static readonly Color CouleurErreur = Color.FromArgb("#DC2626");
     private static readonly Color CouleurBordureChamp = Color.FromArgb("#94A3B8");
+
+    // Accès aux comptes : on demande à MAUI le repository enregistré dans MauiProgram.cs
+    private readonly IUtilisateurRepository _comptes = ServiceHelper.Obtenir<IUtilisateurRepository>();
 
     public ConnexionPage()
     {
@@ -22,7 +27,7 @@ public partial class ConnexionPage : ContentPage
 
     private async void OnMotDePasseOublieTapped(object? sender, TappedEventArgs e)
     {
-        await DisplayAlertAsync("Mot de passe oublié", "Fonction prévue avec le backend (non disponible pour le moment).", "OK");
+        await DisplayAlertAsync("Mot de passe oublié", "Fonction non disponible dans cette version.", "OK");
     }
 
     // Appelé quand on appuie sur "Se connecter"
@@ -44,8 +49,29 @@ public partial class ConnexionPage : ContentPage
             return;
         }
 
-        // SIMULATION : aucun compte n'est vérifié. La navigation vers l'Accueil sera ajoutée avec cet écran.
-        await Shell.Current.GoToAsync("//AccueilPage"); // connexion SIMULÉE : tout identifiant valide est accepté
+        // On désactive le bouton pendant la vérification (le calcul prend un instant)
+        var bouton = sender as Button;
+        if (bouton != null) bouton.IsEnabled = false;
+
+        try
+        {
+            // Vérification RÉELLE dans la base : null = e-mail inconnu ou mot de passe faux
+            var utilisateur = await _comptes.ConnecterAsync(email, motDePasse);
+
+            if (utilisateur == null)
+            {
+                // Même message dans les deux cas : on ne révèle pas si l'e-mail existe
+                AfficherErreur(CadreMotDePasse, ErreurMotDePasse, "E-mail ou mot de passe incorrect");
+                return;
+            }
+
+            SessionUtilisateur.Ouvrir(utilisateur.Email);
+            await Shell.Current.GoToAsync("//AccueilPage");
+        }
+        finally
+        {
+            if (bouton != null) bouton.IsEnabled = true;
+        }
     }
 
     // Va vers l'écran Inscription (route déclarée dans AppShell.xaml)

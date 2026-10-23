@@ -1,4 +1,6 @@
 using Microsoft.Maui.Graphics; // pour le type Color
+using PriceCheck.Data;         // IUtilisateurRepository
+using PriceCheck.Services;     // ServiceHelper, SessionUtilisateur
 
 namespace PriceCheck.Pages;
 
@@ -7,6 +9,9 @@ public partial class InscriptionPage : ContentPage
     // Couleurs de la charte (mêmes codes que PriceCheckTheme.xaml)
     private static readonly Color CouleurErreur = Color.FromArgb("#DC2626");
     private static readonly Color CouleurBordureChamp = Color.FromArgb("#94A3B8");
+
+    // Accès aux comptes : on demande à MAUI le repository enregistré dans MauiProgram.cs
+    private readonly IUtilisateurRepository _comptes = ServiceHelper.Obtenir<IUtilisateurRepository>();
 
     public InscriptionPage()
     {
@@ -39,9 +44,30 @@ public partial class InscriptionPage : ContentPage
             return; // erreur : on s'arrête
         }
 
-        // SIMULATION : aucun compte n'est réellement créé (pas de backend pour le moment).
-        // La navigation vers l'Accueil sera ajoutée quand l'écran Accueil existera.
-        await Shell.Current.GoToAsync("//AccueilPage"); // inscription SIMULÉE : rien n'est enregistré
+        // On désactive le bouton pendant le calcul : un double appui ne crée pas deux comptes
+        var bouton = sender as Button;
+        if (bouton != null) bouton.IsEnabled = false;
+
+        try
+        {
+            // Création RÉELLE du compte dans la base (false = e-mail déjà utilisé)
+            bool cree = await _comptes.CreerCompteAsync(email, motDePasse);
+
+            if (!cree)
+            {
+                AfficherErreur(CadreEmail, ErreurEmail, "Un compte existe déjà avec cet e-mail");
+                return;
+            }
+
+            // Le compte est créé : la personne est directement connectée
+            SessionUtilisateur.Ouvrir(email.ToLowerInvariant());
+            await Shell.Current.GoToAsync("//AccueilPage");
+        }
+        finally
+        {
+            // Quoi qu'il arrive (succès ou erreur), on réactive le bouton
+            if (bouton != null) bouton.IsEnabled = true;
+        }
     }
 
     // Retour vers Connexion.
