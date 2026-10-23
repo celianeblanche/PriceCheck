@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.Maui.Graphics;
+using PriceCheck.Data;
 using PriceCheck.Services;
 
 namespace PriceCheck.Pages;
@@ -11,6 +12,8 @@ public partial class RelevePage : ContentPage
     private static readonly Color CouleurErreur = Color.FromArgb("#DC2626");
     private static readonly Color CouleurBordureChamp = Color.FromArgb("#94A3B8");
 
+    private readonly IProduitRepository _depot = ServiceHelper.Obtenir<IProduitRepository>();
+
     private string _code = "";
 
     public string Code
@@ -19,14 +22,21 @@ public partial class RelevePage : ContentPage
         set
         {
             _code = value;
-            // "?." : si le produit est null, on n'essaie pas de lire son nom ; "??" : texte de remplacement
-            NomProduit.Text = DonneesSimulees.TrouverProduit(value)?.Nom ?? "";
+            _ = AfficherNomProduitAsync(value); // lance la lecture du nom sans bloquer
         }
     }
 
     public RelevePage()
     {
         InitializeComponent();
+    }
+
+    // Lit le nom du produit dans la base et l'affiche en haut de l'écran
+    private async Task AfficherNomProduitAsync(string code)
+    {
+        var produit = await _depot.TrouverProduitAsync(code);
+        // "?." : si le produit est null, on n'essaie pas de lire son nom ; "??" : texte de remplacement
+        NomProduit.Text = produit?.Nom ?? "";
     }
 
     // Convertit le texte saisi en nombre. Accepte "1250" et "1 250".
@@ -62,10 +72,13 @@ public partial class RelevePage : ContentPage
             return; // sécurité : ne devrait pas arriver, le bouton est désactivé
         }
 
-        // SIMULATION : enregistré en mémoire seulement
-        ReleveService.Enregistrer(_code, ChampEnseigne.Text!.Trim(), prix);
+        // On désactive le bouton pendant l'enregistrement : un double appui ne crée pas deux relevés
+        BoutonEnregistrer.IsEnabled = false;
 
-        await DisplayAlertAsync("Relevé enregistré", "Simulation : le relevé est gardé en mémoire jusqu'à la fermeture de l'application.", "OK");
+        // Enregistrement RÉEL dans la base SQLite (il reste après la fermeture de l'appli)
+        await _depot.EnregistrerReleveAsync(_code, ChampEnseigne.Text!.Trim(), prix);
+
+        await DisplayAlertAsync("Relevé enregistré", "Merci ! Votre relevé de prix a été ajouté.", "OK");
         await Shell.Current.GoToAsync(".."); // retour à Résultat
     }
 

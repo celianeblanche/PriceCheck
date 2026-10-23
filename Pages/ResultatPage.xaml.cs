@@ -1,3 +1,4 @@
+using PriceCheck.Data;
 using PriceCheck.Services;
 
 namespace PriceCheck.Pages;
@@ -5,6 +6,8 @@ namespace PriceCheck.Pages;
 [QueryProperty(nameof(Code), "code")]
 public partial class ResultatPage : ContentPage
 {
+    private readonly IProduitRepository _depot = ServiceHelper.Obtenir<IProduitRepository>();
+
     private string _code = "";
 
     public string Code
@@ -13,7 +16,7 @@ public partial class ResultatPage : ContentPage
         set
         {
             _code = value;
-            Charger();
+            _ = ChargerAsync(); // "_ =" : on lance le chargement sans attendre (un "set" ne peut pas utiliser await)
         }
     }
 
@@ -23,15 +26,21 @@ public partial class ResultatPage : ContentPage
     }
 
     // Rechargé chaque fois que la page redevient visible (ex. retour depuis "Ajouter un relevé")
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        Charger();
+        await ChargerAsync();
     }
 
-    private void Charger()
+    // Lit le produit dans la base et remplit l'écran
+    private async Task ChargerAsync()
     {
-        var produit = DonneesSimulees.TrouverProduit(_code);
+        if (string.IsNullOrEmpty(_code))
+        {
+            return; // le code n'est pas encore arrivé : on attend
+        }
+
+        var produit = await _depot.TrouverProduitAsync(_code);
 
         if (produit == null)
         {
@@ -51,10 +60,10 @@ public partial class ResultatPage : ContentPage
         await Shell.Current.GoToAsync("..");
     }
 
-    // Ajoute le produit à la liste d'achats (SIMULATION : liste gardée en mémoire seulement)
+    // Ajoute le produit à la liste d'achats (la liste reste gardée en mémoire pour l'instant)
     private async void OnAjouterListeClicked(object? sender, EventArgs e)
     {
-        var produit = DonneesSimulees.TrouverProduit(_code);
+        var produit = await _depot.TrouverProduitAsync(_code);
         if (produit == null)
         {
             return; // produit inconnu : rien à ajouter

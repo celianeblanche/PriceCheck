@@ -1,4 +1,5 @@
 using Microsoft.Maui.Graphics;
+using PriceCheck.Data;
 using PriceCheck.Services;
 
 namespace PriceCheck.Pages;
@@ -8,8 +9,10 @@ public partial class ScannerPage : ContentPage
     private static readonly Color CouleurErreur = Color.FromArgb("#DC2626");
     private static readonly Color CouleurBordureChamp = Color.FromArgb("#94A3B8");
 
-    // Code-barres utilisé par le scan SIMULÉ (celui du lait dans nos données fictives)
+    // Code-barres utilisé par le scan SIMULÉ (celui du lait, présent dans la base)
     private const string CodeDemonstration = "6001234567890";
+
+    private readonly IProduitRepository _depot = ServiceHelper.Obtenir<IProduitRepository>();
 
     public ScannerPage()
     {
@@ -35,10 +38,10 @@ public partial class ScannerPage : ContentPage
             return;
         }
 
-        // SIMULATION : le code doit exister dans nos données fictives
-        if (DonneesSimulees.TrouverProduit(code) == null)
+        // Le code doit exister dans la base de données
+        if (await _depot.TrouverProduitAsync(code) == null)
         {
-            AfficherErreurCode("Code inconnu (données simulées). Essayez 6001234567890");
+            AfficherErreurCode("Code inconnu. Essayez 6001234567890");
             return;
         }
 

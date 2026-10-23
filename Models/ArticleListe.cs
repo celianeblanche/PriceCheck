@@ -13,5 +13,5 @@ public class ArticleListe
 
     // Propriétés calculées, utilisées par l'écran
     public string QuantiteTexte => $"Qté {Quantite}";
-    public string PrixTexte => DonneesSimulees.FormaterFcfa(PrixUnitaire * Quantite);
+    public string PrixTexte => Formatage.FormaterFcfa(PrixUnitaire * Quantite); // changé : Formatage
 }

@@ -1,9 +1,15 @@
+using PriceCheck.Data;
 using PriceCheck.Services;
 
 namespace PriceCheck.Pages;
 
 public partial class HistoriquePage : ContentPage
 {
+    // Produit dont on affiche l'historique : le lait, comme sur la maquette.
+    private const string CodeProduit = "6001234567890";
+
+    private readonly IProduitRepository _depot = ServiceHelper.Obtenir<IProduitRepository>();
+
     public HistoriquePage()
     {
         InitializeComponent();
@@ -18,15 +24,19 @@ public partial class HistoriquePage : ContentPage
         Chargement.IsVisible = true;
         Contenu.IsVisible = false;
 
-        // SIMULATION : on attend 0,8 seconde comme si on téléchargeait les données.
-        await Task.Delay(800);
+        // Courte pause pour que l'état de chargement reste visible (la lecture locale est très rapide)
+        await Task.Delay(500);
 
-        // 2) Remplissage avec les données (simulées)
-        NomProduit.Text = HistoriqueSimule.NomProduit;
-        StatMin.Text = HistoriqueSimule.FormaterNombre(HistoriqueSimule.Min);
-        StatMoyen.Text = HistoriqueSimule.FormaterNombre(HistoriqueSimule.Moyen);
-        StatMax.Text = HistoriqueSimule.FormaterNombre(HistoriqueSimule.Max);
-        BindableLayout.SetItemsSource(ListeReleves, HistoriqueSimule.ConstruireLignes());
+        // 2) Lecture de l'historique dans la base et remplissage de l'écran
+        var historique = await _depot.ObtenirHistoriqueAsync(CodeProduit);
+        if (historique != null)
+        {
+            NomProduit.Text = historique.NomProduit;
+            StatMin.Text = Formatage.FormaterNombre(historique.Min);
+            StatMoyen.Text = Formatage.FormaterNombre(historique.Moyen);
+            StatMax.Text = Formatage.FormaterNombre(historique.Max);
+            BindableLayout.SetItemsSource(ListeReleves, historique.Lignes);
+        }
 
         // 3) On remplace le chargement par le contenu
         Chargement.IsVisible = false;
@@ -36,6 +46,6 @@ public partial class HistoriquePage : ContentPage
     // Toucher un relevé : ouvre le Résultat du produit
     private async void OnReleveTapped(object? sender, TappedEventArgs e)
     {
-        await Shell.Current.GoToAsync($"ResultatPage?code={HistoriqueSimule.CodeProduit}");
+        await Shell.Current.GoToAsync($"ResultatPage?code={CodeProduit}");
     }
 }

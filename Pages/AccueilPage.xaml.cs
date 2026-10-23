@@ -1,6 +1,6 @@
 using Microsoft.Maui.Graphics; // pour le type Color
-using PriceCheck.Models;       // ProduitRecent
-using PriceCheck.Services;     // DonneesSimulees
+using PriceCheck.Data;         // IProduitRepository
+using PriceCheck.Services;     // ServiceHelper
 
 namespace PriceCheck.Pages;
 
@@ -9,18 +9,21 @@ public partial class AccueilPage : ContentPage
     private static readonly Color CouleurErreur = Color.FromArgb("#DC2626");
     private static readonly Color CouleurBordureChamp = Color.FromArgb("#94A3B8");
 
+    // Accès aux données : on demande à MAUI le repository enregistré dans MauiProgram.cs
+    private readonly IProduitRepository _depot = ServiceHelper.Obtenir<IProduitRepository>();
+
     public AccueilPage()
     {
         InitializeComponent();
+    }
 
-        // SIMULATION : produits fictifs (aucune base de données pour le moment).
-        var produits = new List<ProduitRecent>
-        {
-            new() { Nom = "Lait entier 1 L",        Enseigne = "Super Plus",     Prix = "1 250 FCFA", Anciennete = "il y a 2 j" },
-            new() { Nom = "Riz long grain 1 kg",    Enseigne = "Marché Central", Prix = "900 FCFA",   Anciennete = "il y a 5 j" },
-            new() { Nom = "Huile de tournesol 1 L", Enseigne = "Super Plus",     Prix = "1 800 FCFA", Anciennete = "il y a 1 sem" },
-        };
+    // Appelé chaque fois que l'Accueil devient visible : on relit les derniers produits
+    // (ainsi un relevé qu'on vient d'ajouter apparaît tout de suite).
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
 
+        var produits = await _depot.ObtenirDerniersProduitsAsync(3);
         BindableLayout.SetItemsSource(ListeProduits, produits);
     }
 
@@ -30,7 +33,7 @@ public partial class AccueilPage : ContentPage
         await Shell.Current.GoToAsync("//ScannerPage");
     }
 
-    // "Comparer" : vérifie le code, cherche le produit, ouvre Résultat
+    // "Comparer" : vérifie le code, cherche le produit dans la base, ouvre Résultat
     private async void OnComparerClicked(object? sender, EventArgs e)
     {
         string code = ChampCode.Text?.Trim() ?? "";
@@ -42,10 +45,10 @@ public partial class AccueilPage : ContentPage
             return;
         }
 
-        // 2) SIMULATION : le code doit exister dans nos données fictives
-        if (DonneesSimulees.TrouverProduit(code) == null)
+        // 2) Le code doit exister dans la base de données
+        if (await _depot.TrouverProduitAsync(code) == null)
         {
-            AfficherErreurCode("Code inconnu (données simulées). Essayez 6001234567890");
+            AfficherErreurCode("Code inconnu. Essayez 6001234567890");
             return;
         }
 
