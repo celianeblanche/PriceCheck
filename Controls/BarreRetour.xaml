@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Composant "← Retour" : à insérer en haut d'une page avec <controls:BarreRetour /> -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PriceCheck.Controls.BarreRetour"
+             HorizontalOptions="Start">
+
+    <!-- Padding : agrandit la zone qu'on peut toucher avec le doigt -->
+    <Label x:Name="LabelRetour" Text="← Retour" Style="{StaticResource LienTexte}"
+           Padding="0,8,16,8">
+        <Label.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnRetourTapped" />
+        </Label.GestureRecognizers>
+    </Label>
+</ContentView>

@@ -3,23 +3,21 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:PriceCheck.Models"
+             xmlns:controls="clr-namespace:PriceCheck.Controls"
              x:Class="PriceCheck.Pages.ResultatPage"
              Title="Résultat"
              BackgroundColor="#F8FAFC"
              Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <VerticalStackLayout Padding="24,56,24,24">
+        <!-- MODIFIÉ : marge du haut réduite (40 au lieu de 56) pour faire de la place à la flèche -->
+        <VerticalStackLayout Padding="24,40,24,24">
 
-            <!-- Lien Retour -->
-            <Label Text="Retour" Style="{StaticResource LienTexte}" HorizontalOptions="Start">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnRetourTapped" />
-                </Label.GestureRecognizers>
-            </Label>
+            <!-- MODIFIÉ : le composant remplace l'ancien lien "Retour" (même apparence sur toutes les pages) -->
+            <controls:BarreRetour />
 
             <!-- Nom et code-barres (remplis par le code .cs) -->
-            <Label x:Name="NomProduit" Style="{StaticResource TitrePrincipal}" Margin="0,16,0,0" />
+            <Label x:Name="NomProduit" Style="{StaticResource TitrePrincipal}" Margin="0,8,0,0" />
             <Label x:Name="CodeProduit" Style="{StaticResource TexteSecondaire}" Margin="0,4,0,0" />
 
             <!-- Une carte par enseigne (BindableLayout, comme sur l'Accueil) -->

@@ -3,15 +3,20 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:PriceCheck.Models"
+             xmlns:controls="clr-namespace:PriceCheck.Controls"
              x:Class="PriceCheck.Pages.ListePage"
              Title="Ma liste"
              BackgroundColor="#F8FAFC"
              Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <VerticalStackLayout Padding="24,56,24,24">
+        <!-- MODIFIÉ : marge du haut réduite (40 au lieu de 56) pour faire de la place à la flèche -->
+        <VerticalStackLayout Padding="24,40,24,24">
 
-            <Label Text="Ma liste" Style="{StaticResource TitrePrincipal}" />
+            <!-- NOUVEAU : flèche retour -->
+            <controls:BarreRetour />
+
+            <Label Text="Ma liste" Style="{StaticResource TitrePrincipal}" Margin="0,8,0,0" />
 
             <!-- Affichage 1 : liste vide (deux lignes de texte + un bouton, sans illustration) -->
             <VerticalStackLayout x:Name="EtatVide" IsVisible="False" Margin="0,32,0,0">
@@ -33,7 +38,8 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnArticleTapped" />
                                 </Border.GestureRecognizers>
-                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                <!-- MODIFIÉ : une 3e ligne (Auto) pour le lien "Retirer" -->
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
                                     <Label Grid.Row="0" Grid.Column="0" Text="{Binding Nom}"
                                            Style="{StaticResource SousTitre}" />
                                     <Label Grid.Row="1" Grid.Column="0" Text="{Binding Enseigne}"
@@ -42,6 +48,17 @@
                                            Style="{StaticResource PrixListe}" HorizontalOptions="End" />
                                     <Label Grid.Row="1" Grid.Column="1" Text="{Binding QuantiteTexte}"
                                            Style="{StaticResource PetitTexte}" HorizontalOptions="End" />
+
+                                    <!-- NOUVEAU : lien "Retirer" en rouge (couleur d'erreur de la charte).
+                                         Padding="0,8" agrandit la zone qu'on peut toucher avec le doigt. -->
+                                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="Retirer" Style="{StaticResource LienTexte}"
+                                           TextColor="#DC2626" FontSize="13"
+                                           HorizontalOptions="End" Padding="16,8,0,0">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnRetirerTapped" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
                                 </Grid>
                             </Border>
                         </DataTemplate>

@@ -2,16 +2,21 @@
 <!-- Écran Inscription : même structure que Connexion, avec un bouton principal différent. -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:PriceCheck.Controls"
              x:Class="PriceCheck.Pages.InscriptionPage"
              Title="Inscription"
              BackgroundColor="{StaticResource PcSurface}"
              Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <VerticalStackLayout Padding="24,72,24,24">
+        <!-- MODIFIÉ : marge du haut réduite (40 au lieu de 72) pour faire de la place à la flèche -->
+        <VerticalStackLayout Padding="24,40,24,24">
+
+            <!-- NOUVEAU : flèche retour (ramène à l'écran Connexion) -->
+            <controls:BarreRetour />
 
             <!-- Logo provisoire + nom de l'application -->
-            <HorizontalStackLayout Spacing="12">
+            <HorizontalStackLayout Spacing="12" Margin="0,16,0,0">
                 <Border BackgroundColor="{StaticResource PcPrincipale}"
                         StrokeThickness="0"
                         WidthRequest="48" HeightRequest="48">

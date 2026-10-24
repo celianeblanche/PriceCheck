@@ -2,6 +2,7 @@
 <!-- Écran Scanner : fond sombre (économie d'énergie sur écran OLED), cadre caméra, panneau blanc de saisie manuelle. -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:PriceCheck.Controls"
              x:Class="PriceCheck.Pages.ScannerPage"
              Title="Scanner"
              BackgroundColor="#1E293B"
@@ -21,8 +22,7 @@
                 <TapGestureRecognizer Tapped="OnCadreCameraTapped" />
             </Border.GestureRecognizers>
 
-            <!-- MODIFIÉ : ZoneCamera est un conteneur dans lequel le code (.cs) ajoute la vue caméra
-                 à chaque activation, et la retire quand on quitte l'écran.
+            <!-- ZoneCamera : conteneur dans lequel le code (.cs) ajoute la vue caméra à chaque activation.
                  Les éléments d'un Grid sans lignes sont empilés : le texte passe PAR-DESSUS la caméra. -->
             <Grid x:Name="ZoneCamera">
                 <!-- Texte affiché tant que la caméra est éteinte -->
@@ -31,6 +31,11 @@
                        VerticalOptions="Center" Margin="24" />
             </Grid>
         </Border>
+
+        <!-- NOUVEAU : flèche retour, en haut à gauche, en blanc (fond sombre).
+             Placée APRÈS le cadre dans le fichier : elle s'affiche donc par-dessus. -->
+        <controls:BarreRetour Grid.Row="0" CouleurTexte="White"
+                              VerticalOptions="Start" HorizontalOptions="Start" Margin="24,40,0,0" />
 
         <!-- Panneau blanc du bas : saisie manuelle. Coins arrondis seulement en haut ("12,12,0,0"). -->
         <Border Grid.Row="1" BackgroundColor="White" StrokeThickness="0" Padding="24">

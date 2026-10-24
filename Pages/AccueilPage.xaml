@@ -9,7 +9,17 @@
              Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <VerticalStackLayout Padding="24,56,24,24">
+        <!-- MODIFIÉ : marge du haut réduite (48 au lieu de 56) pour faire de la place au lien du haut -->
+        <VerticalStackLayout Padding="24,48,24,24">
+
+            <!-- NOUVEAU : lien de déconnexion, en haut à droite.
+                 Padding="8" agrandit la zone qu'on peut toucher avec le doigt. -->
+            <Label Text="Se déconnecter" FontSize="14" FontFamily="InterBold"
+                   TextColor="#1D4ED8" HorizontalOptions="End" Padding="8" Margin="0,0,-8,8">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnSeDeconnecterTapped" />
+                </Label.GestureRecognizers>
+            </Label>
 
             <Label Text="Comparer un prix" Style="{StaticResource TitrePrincipal}" />
 
@@ -54,15 +64,6 @@
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
-
-            <!-- NOUVEAU : lien de déconnexion, discret, en bas de l'écran.
-                 Un Label rendu cliquable avec un TapGestureRecognizer (comme "Afficher" sur l'écran Connexion). -->
-            <Label Text="Se déconnecter" FontSize="14" FontFamily="InterBold"
-                   TextColor="#1D4ED8" HorizontalOptions="Center" Margin="0,32,0,0">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnSeDeconnecterTapped" />
-                </Label.GestureRecognizers>
-            </Label>
 
         </VerticalStackLayout>
     </ScrollView>

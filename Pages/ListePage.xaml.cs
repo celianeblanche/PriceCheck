@@ -19,7 +19,13 @@ public partial class ListePage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        await ActualiserAsync();
+    }
 
+    // NOUVEAU : relit la liste dans la base et met l'écran à jour.
+    // (Séparée de OnAppearing pour pouvoir la rappeler après un retrait.)
+    private async Task ActualiserAsync()
+    {
         var articles = await _liste.ObtenirArticlesAsync();
 
         bool vide = articles.Count == 0;
@@ -51,6 +57,23 @@ public partial class ListePage : ContentPage
         if (sender is BindableObject cible && cible.BindingContext is ArticleListe article)
         {
             await Shell.Current.GoToAsync($"ResultatPage?code={article.Code}");
+        }
+    }
+
+    // NOUVEAU : "Retirer" : demande confirmation, supprime l'article de la base, puis rafraîchit l'écran.
+    private async void OnRetirerTapped(object? sender, TappedEventArgs e)
+    {
+        if (sender is BindableObject cible && cible.BindingContext is ArticleListe article)
+        {
+            bool confirme = await DisplayAlertAsync("Retirer de la liste",
+                $"Retirer « {article.Nom} » de votre liste ?", "Retirer", "Annuler");
+            if (!confirme)
+            {
+                return; // la personne a annulé : on ne touche à rien
+            }
+
+            await _liste.RetirerAsync(article.Code);
+            await ActualiserAsync(); // la carte disparaît et le total est recalculé
         }
     }
 }

@@ -2,6 +2,7 @@
 <!-- Écran Ajouter un relevé : formulaire enseigne + prix. Pas de barre du bas (TabBarIsVisible=False). -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:PriceCheck.Controls"
              x:Class="PriceCheck.Pages.RelevePage"
              Title="Ajouter un relevé"
              BackgroundColor="#F8FAFC"
@@ -9,9 +10,13 @@
              Shell.TabBarIsVisible="False">
 
     <ScrollView>
-        <VerticalStackLayout Padding="24,56,24,24">
+        <!-- MODIFIÉ : marge du haut réduite (40 au lieu de 56) pour faire de la place à la flèche -->
+        <VerticalStackLayout Padding="24,40,24,24">
 
-            <Label Text="Ajouter un relevé" Style="{StaticResource TitrePrincipal}" />
+            <!-- NOUVEAU : flèche retour -->
+            <controls:BarreRetour />
+
+            <Label Text="Ajouter un relevé" Style="{StaticResource TitrePrincipal}" Margin="0,8,0,0" />
             <!-- Nom du produit concerné (rempli par le code .cs) -->
             <Label x:Name="NomProduit" Style="{StaticResource TexteSecondaire}" Margin="0,8,0,0" />
 
