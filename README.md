@@ -1,42 +1,54 @@
 # PriceCheck
 
-Application mobile .NET MAUI (C#) pour comparer le prix d'un produit emballé entre plusieurs enseignes à partir de son code-barres.
+Application mobile (.NET MAUI, C#) qui compare le prix d'un produit emballé entre plusieurs enseignes à partir de son code-barres. Projet réalisé dans le cadre de l'Atelier de développement mobile.
 
-**État actuel : front-end uniquement.** Le backend, la base de données et les données réelles sont prévus dans une phase suivante.
+## Fonctionnalités
 
-## Écrans
+- Inscription et connexion (compte enregistré dans la base, mot de passe haché avec PBKDF2 et un sel)
+- Session mémorisée : l'appli s'ouvre directement sur l'accueil si on est déjà connecté, avec un lien de déconnexion
+- Recherche d'un produit par son nom, sans scan
+- Scan réel des codes-barres EAN-13 par la caméra (Google ML Kit), ou saisie manuelle
+- Ajout d'un produit inconnu (nom, enseigne, prix) depuis le scan, la saisie manuelle ou l'accueil
+- Comparaison des prix par enseigne, avec le meilleur prix mis en avant
+- Signalement d'un prix (nouvelle enseigne possible), conservé après la fermeture de l'appli, avec une confirmation si le prix est très différent de celui connu
+- Historique des prix du dernier produit consulté (minimum, moyen, maximum, variations)
+- Liste d'achats enregistrée dans la base, propre à chaque compte, avec retrait d'un article
+- Flèche « Retour » en haut des pages ; le bouton retour du téléphone repasse toujours par l'accueil avant de quitter l'appli
 
-1. Connexion
-2. Inscription
-3. Accueil
-4. Scanner (saisie du code-barres)
-5. Résultat (prix par enseigne)
-6. Ajout d'un relevé
-7. Ma liste
-8. Historique des prix
+## Architecture
 
-## Ce qui est simulé
+La couche données suit le principe vu en TP : les écrans demandent des **contrats** (interfaces), et l'implémentation SQLite est choisie dans `MauiProgram.cs`.
 
-- Les produits, les prix, les enseignes et l'historique sont des données fictives écrites dans le code (dossier `Services`).
-- La connexion et l'inscription ne font aucune authentification réelle : aucun compte n'est créé sur un serveur.
-- Le scan par caméra n'est pas implémenté : toucher le cadre de la caméra affiche un message et utilise un code-barres de démonstration, sinon le code-barres se saisit manuellement.
-- Aucun backend, aucune API, aucune base de données.
+```
+Controls/    Composant réutilisable (flèche « Retour »)
+Data/        Entités SQLite, BaseDeDonnees, contrats (IProduitRepository, IUtilisateurRepository, IListeRepository) et leurs versions SQLite
+Models/      Modèles d'affichage (lignes de prix, historique, articles de liste)
+Services/    Formatage, hachage des mots de passe, session, dernier produit consulté, navigation retour, ajout de produit
+Pages/       Écrans (XAML + code C#)
+```
 
-## Organisation de l'historique Git
-
-Les phases ci-dessous sont un découpage choisi par l'auteure, par parcours d'utilisation :
-
-- **Initialisation** : structure du projet, styles, navigation.
-- **Phase A** : connexion et inscription.
-- **Phase B** : accueil, scanner et résultat.
-- **Phase C** : ajout d'un relevé, ma liste et historique.
-
-Chaque commit de phase ajoute les pages concernées ; seul l'état final du dépôt compile, car la navigation (`AppShell`) référence toutes les pages.
+Base de données : SQLite (`sqlite-net-pcl`), fichier créé au premier lancement avec trois produits d'exemple (lait, riz, huile) et leurs prix.
 
 ## Lancer le projet
 
-Prérequis : SDK .NET avec la charge de travail MAUI, Android SDK et JDK.
+Prérequis : SDK .NET 10 avec la charge de travail MAUI, un téléphone Android (version 6.0 ou plus) en mode débogage USB.
 
-    dotnet build -f net10.0-android
+```bash
+dotnet build -f net10.0-android
+```
 
-Dossiers principaux : `Pages` (écrans XAML et C#), `Models` (modèles de données), `Services` (données simulées), `Resources/Styles` (couleurs et styles).
+## Tester
+
+1. Ouvrir l'écran **Inscription** et créer un compte (n'importe quel e-mail, mot de passe de 8 caractères minimum).
+2. Sur l'Accueil, taper `lait` dans la recherche, puis ouvrir la comparaison.
+3. **Signaler un prix** et constater qu'il reste après la fermeture de l'appli.
+4. Onglet **Scanner** : scanner un vrai produit emballé. S'il est inconnu, l'appli propose de l'ajouter ; le scanner de nouveau ouvre sa comparaison.
+
+Codes-barres d'exemple pour la saisie manuelle : `6001234567890` (lait), `6001234567891` (riz), `6001234567892` (huile). Ce ne sont pas de vrais EAN-13, donc le scan caméra ne peut pas les lire.
+
+## Limites connues
+
+- La base est locale à l'appareil : un produit ajouté sur un téléphone n'apparaît pas sur un autre.
+- Seuls les codes-barres EAN-13 (13 chiffres) sont lus ; les codes de 8 ou 12 chiffres ne le sont pas.
+- La fonction « Mot de passe oublié » n'est pas disponible.
+- Testé sur Android uniquement.

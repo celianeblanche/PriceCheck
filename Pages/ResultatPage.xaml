@@ -10,10 +10,9 @@
              Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <!-- MODIFIÉ : marge du haut réduite (40 au lieu de 56) pour faire de la place à la flèche -->
         <VerticalStackLayout Padding="24,40,24,24">
 
-            <!-- MODIFIÉ : le composant remplace l'ancien lien "Retour" (même apparence sur toutes les pages) -->
+            <!-- Flèche retour (même apparence sur toutes les pages) -->
             <controls:BarreRetour />
 
             <!-- Nom et code-barres (remplis par le code .cs) -->
@@ -68,7 +67,8 @@
             <!-- Actions : un seul bouton principal -->
             <Button Text="Ajouter à ma liste" Style="{StaticResource BoutonPrincipal}"
                     Margin="0,24,0,0" Clicked="OnAjouterListeClicked" />
-            <Button Text="Ajouter un relevé" Style="{StaticResource BoutonSecondaire}"
+            <!-- MODIFIÉ : "Ajouter un relevé" devient "Signaler un prix" -->
+            <Button Text="Signaler un prix" Style="{StaticResource BoutonSecondaire}"
                     Margin="0,16,0,0" Clicked="OnAjouterReleveClicked" />
 
         </VerticalStackLayout>

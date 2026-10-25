@@ -52,6 +52,57 @@ public class SqliteProduitRepository : IProduitRepository
         };
     }
 
+    // NOUVEAU : recherche par nom. Tous les mots tapés doivent se retrouver dans le nom du produit.
+    // Exemple : "lait ent" trouve "Lait entier 1 L".
+    public async Task<List<ProduitRecent>> RechercherAsync(string texte)
+    {
+        var resultat = new List<ProduitRecent>();
+
+        // Mots tapés, sans accents ni majuscules : "Lait ENT" -> ["lait", "ent"]
+        var mots = Formatage.Normaliser(texte).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (mots.Length == 0)
+        {
+            return resultat;
+        }
+
+        var db = await _base.ObtenirConnexionAsync();
+        var produits = await db.Table<Produit>().ToListAsync();
+        var releves = await db.Table<Releve>().ToListAsync();
+        var enseignes = await db.Table<Enseigne>().ToListAsync();
+
+        // On garde les produits dont le nom contient tous les mots (20 au maximum)
+        var trouves = produits
+            .Where(p =>
+            {
+                string nom = Formatage.Normaliser(p.Nom);
+                return mots.All(mot => nom.Contains(mot));
+            })
+            .OrderBy(p => p.Nom)
+            .Take(20)
+            .ToList();
+
+        foreach (var produit in trouves)
+        {
+            // Le relevé le plus récent de chaque enseigne, puis le moins cher d'entre eux
+            var meilleur = releves
+                .Where(r => r.ProduitId == produit.Id)
+                .GroupBy(r => r.EnseigneId)
+                .Select(groupe => groupe.OrderByDescending(r => r.DateReleve).First())
+                .OrderBy(r => r.Prix)
+                .FirstOrDefault();
+
+            resultat.Add(new ProduitRecent
+            {
+                Code = produit.CodeBarres,
+                Nom = produit.Nom,
+                Enseigne = meilleur == null ? "" : enseignes.First(e => e.Id == meilleur.EnseigneId).Nom,
+                Prix = meilleur == null ? "Pas de prix" : Formatage.FormaterFcfa(meilleur.Prix),
+                Anciennete = meilleur == null ? "" : Formatage.FormaterAnciennete(meilleur.DateReleve)
+            });
+        }
+        return resultat;
+    }
+
     public async Task EnregistrerReleveAsync(string code, string nomEnseigne, int prix)
     {
         var db = await _base.ObtenirConnexionAsync();
@@ -84,7 +135,7 @@ public class SqliteProduitRepository : IProduitRepository
         });
     }
 
-    // NOUVEAU : crée un produit encore inconnu, puis enregistre son premier relevé de prix.
+    // Crée un produit encore inconnu, puis enregistre son premier relevé de prix.
     public async Task<bool> CreerProduitAsync(string code, string nom, string enseigne, int prix)
     {
         var db = await _base.ObtenirConnexionAsync();
@@ -163,6 +214,7 @@ public class SqliteProduitRepository : IProduitRepository
 
             resultat.Add(new ProduitRecent
             {
+                Code = produit.CodeBarres, // NOUVEAU : nécessaire pour ouvrir la comparaison au toucher
                 Nom = produit.Nom,
                 Enseigne = enseignes.First(e => e.Id == r.EnseigneId).Nom,
                 Prix = Formatage.FormaterFcfa(r.Prix),

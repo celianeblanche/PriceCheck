@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- Écran Historique : deux affichages (chargement / contenu), choisis par le code .cs. -->
+<!-- Écran Historique : trois affichages (vide / chargement / contenu), choisis par le code .cs. -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:PriceCheck.Models"
@@ -23,14 +23,22 @@
     </ContentPage.Resources>
 
     <ScrollView>
-        <!-- MODIFIÉ : marge du haut réduite (40 au lieu de 56) pour faire de la place à la flèche -->
         <VerticalStackLayout Padding="24,40,24,24">
 
-            <!-- NOUVEAU : flèche retour -->
+            <!-- Flèche retour -->
             <controls:BarreRetour />
 
             <Label Text="Historique" Style="{StaticResource TitrePrincipal}" Margin="0,8,0,0" />
             <Label x:Name="NomProduit" Style="{StaticResource TexteSecondaire}" Margin="0,8,0,0" />
+
+            <!-- NOUVEAU - Affichage 0 : rien consulté pour l'instant -->
+            <VerticalStackLayout x:Name="EtatVide" IsVisible="False" Margin="0,32,0,0">
+                <Label Text="Aucun historique pour l'instant" Style="{StaticResource TitreSection}" />
+                <Label Text="Ouvrez la comparaison d'un produit pour voir l'évolution de ses prix."
+                       Style="{StaticResource TexteSecondaire}" Margin="0,8,0,0" />
+                <Button Text="Rechercher un produit" Style="{StaticResource BoutonPrincipal}"
+                        Margin="0,32,0,0" Clicked="OnRechercherClicked" />
+            </VerticalStackLayout>
 
             <!-- Affichage 1 : chargement (blocs gris) -->
             <VerticalStackLayout x:Name="Chargement" Spacing="12" Margin="0,24,0,0">
@@ -74,9 +82,10 @@
                     </Border>
                 </Grid>
 
-                <Label Text="Relevés récents" Style="{StaticResource TitreSection}" Margin="0,32,0,0" />
+                <!-- MODIFIÉ : "Relevés récents" devient "Prix récents" -->
+                <Label Text="Prix récents" Style="{StaticResource TitreSection}" Margin="0,32,0,0" />
 
-                <!-- Une carte par relevé (BindableLayout) ; toucher une carte ouvre le Résultat -->
+                <!-- Une carte par prix relevé (BindableLayout) ; toucher une carte ouvre le Résultat -->
                 <VerticalStackLayout x:Name="ListeReleves" Spacing="12" Margin="0,16,0,0">
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="models:LigneReleve">

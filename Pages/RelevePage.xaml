@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- Écran Ajouter un relevé : formulaire enseigne + prix. Pas de barre du bas (TabBarIsVisible=False). -->
+<!-- Écran Signaler un prix : formulaire enseigne + prix. Pas de barre du bas (TabBarIsVisible=False). -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:PriceCheck.Controls"
              x:Class="PriceCheck.Pages.RelevePage"
-             Title="Ajouter un relevé"
+             Title="Signaler un prix"
              BackgroundColor="#F8FAFC"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
 
     <ScrollView>
-        <!-- MODIFIÉ : marge du haut réduite (40 au lieu de 56) pour faire de la place à la flèche -->
         <VerticalStackLayout Padding="24,40,24,24">
 
-            <!-- NOUVEAU : flèche retour -->
+            <!-- Flèche retour -->
             <controls:BarreRetour />
 
-            <Label Text="Ajouter un relevé" Style="{StaticResource TitrePrincipal}" Margin="0,8,0,0" />
+            <!-- MODIFIÉ : "Ajouter un relevé" devient "Signaler un prix" -->
+            <Label Text="Signaler un prix" Style="{StaticResource TitrePrincipal}" Margin="0,8,0,0" />
             <!-- Nom du produit concerné (rempli par le code .cs) -->
             <Label x:Name="NomProduit" Style="{StaticResource TexteSecondaire}" Margin="0,8,0,0" />
 
@@ -44,7 +44,8 @@
                    Style="{StaticResource TexteSecondaire}" Margin="0,16,0,0" />
 
             <!-- Désactivé au départ : activé par le code quand le formulaire est valide -->
-            <Button x:Name="BoutonEnregistrer" Text="Enregistrer le relevé"
+            <!-- MODIFIÉ : "Enregistrer le relevé" devient "Enregistrer le prix" -->
+            <Button x:Name="BoutonEnregistrer" Text="Enregistrer le prix"
                     Style="{StaticResource BoutonPrincipal}" IsEnabled="False"
                     Margin="0,32,0,0" Clicked="OnEnregistrerClicked" />
             <Button Text="Annuler" Style="{StaticResource BoutonSecondaire}"

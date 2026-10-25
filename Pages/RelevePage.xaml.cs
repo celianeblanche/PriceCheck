@@ -65,6 +65,27 @@ public partial class RelevePage : ContentPage
         BoutonEnregistrer.IsEnabled = enseigneOk && prixOk;
     }
 
+    // NOUVEAU : prix "normal" auquel comparer le prix saisi.
+    // Même enseigne : son dernier prix connu. Enseigne nouvelle : la moyenne des prix connus.
+    // Renvoie null si le produit n'a encore aucun prix (rien à comparer).
+    private async Task<int?> TrouverPrixDeReferenceAsync(string enseigne)
+    {
+        var produit = await _depot.TrouverProduitAsync(_code);
+        if (produit == null || produit.Prix.Count == 0)
+        {
+            return null;
+        }
+
+        var memeEnseigne = produit.Prix.FirstOrDefault(p =>
+            string.Equals(p.Enseigne, enseigne, StringComparison.OrdinalIgnoreCase));
+        if (memeEnseigne != null)
+        {
+            return memeEnseigne.Prix;
+        }
+
+        return (int)Math.Round(produit.Prix.Average(p => p.Prix));
+    }
+
     private async void OnEnregistrerClicked(object? sender, EventArgs e)
     {
         if (!TryLirePrix(ChampPrix.Text, out int prix))
@@ -72,14 +93,37 @@ public partial class RelevePage : ContentPage
             return; // sécurité : ne devrait pas arriver, le bouton est désactivé
         }
 
-        // On désactive le bouton pendant l'enregistrement : un double appui ne crée pas deux relevés
+        string enseigne = ChampEnseigne.Text!.Trim();
+
+        // On désactive le bouton pendant le traitement : un double appui ne crée pas deux prix
         BoutonEnregistrer.IsEnabled = false;
+        try
+        {
+            // NOUVEAU : garde-fou. Un prix plus du double ou moins de la moitié du prix connu
+            // est peut-être une faute de frappe (12500 au lieu de 1250) : on demande confirmation.
+            int? reference = await TrouverPrixDeReferenceAsync(enseigne);
+            if (reference != null && (prix > reference.Value * 2 || prix * 2 < reference.Value))
+            {
+                bool confirme = await DisplayAlertAsync("Prix inhabituel",
+                    $"Ce prix est très différent de celui déjà connu ({Formatage.FormaterFcfa(reference.Value)}). Est-il correct ?",
+                    "Oui, enregistrer", "Corriger");
+                if (!confirme)
+                {
+                    return; // la personne veut corriger : on reste sur le formulaire
+                }
+            }
 
-        // Enregistrement RÉEL dans la base SQLite (il reste après la fermeture de l'appli)
-        await _depot.EnregistrerReleveAsync(_code, ChampEnseigne.Text!.Trim(), prix);
+            // Enregistrement RÉEL dans la base SQLite (il reste après la fermeture de l'appli)
+            await _depot.EnregistrerReleveAsync(_code, enseigne, prix);
 
-        await DisplayAlertAsync("Relevé enregistré", "Merci ! Votre relevé de prix a été ajouté.", "OK");
-        await Shell.Current.GoToAsync(".."); // retour à Résultat
+            await DisplayAlertAsync("Prix enregistré", "Merci ! Votre prix a bien été ajouté.", "OK");
+            await Shell.Current.GoToAsync(".."); // retour à Résultat
+        }
+        finally
+        {
+            // Quoi qu'il arrive (confirmation refusée ou erreur), on réactive le bouton
+            BoutonEnregistrer.IsEnabled = true;
+        }
     }
 
     private async void OnAnnulerClicked(object? sender, EventArgs e)

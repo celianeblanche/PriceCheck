@@ -59,6 +59,23 @@ public class SqliteListeRepository : IListeRepository
         });
     }
 
+    // NOUVEAU : supprime l'article de la liste de la personne connectée
+    public async Task RetirerAsync(string code)
+    {
+        var db = await ConnexionAsync();
+        string email = SessionUtilisateur.Email;
+
+        // On retrouve la ligne (à la fois par personne ET par produit : on ne touche jamais à la liste d'un autre compte)
+        var ligne = await db.Table<ArticleListeDb>()
+            .Where(a => a.UtilisateurEmail == email && a.CodeBarres == code)
+            .FirstOrDefaultAsync();
+
+        if (ligne != null)
+        {
+            await db.DeleteAsync(ligne); // supprime cette ligne de la table
+        }
+    }
+
     public async Task<List<ArticleListe>> ObtenirArticlesAsync()
     {
         var db = await ConnexionAsync();

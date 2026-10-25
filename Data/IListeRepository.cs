@@ -10,4 +10,7 @@ public interface IListeRepository
 
     // Ajoute un produit à la liste (si déjà présent, la quantité augmente de 1)
     Task AjouterAsync(ProduitDetail produit);
+
+    // NOUVEAU : retire un produit de la liste de la personne connectée (peu importe sa quantité)
+    Task RetirerAsync(string code);
 }
